@@ -1,0 +1,54 @@
+import random
+
+class Cat:
+    def __init__(self, name):
+        self.name = name          
+        self.satiety = 50         
+        self.energy = 50          
+        self.happiness = 50   
+
+    def eat(self):
+        print(f" Let's eat! {self.name} смачно поїв.")
+        self.satiety += 20
+        self.energy -= 5
+        self.limit_stats()
+
+    def play(self):
+        print(f" Play time! {self.name} побігав за лазерною указкою.")
+        self.happiness += 20
+        self.satiety -= 15
+        self.energy -= 15
+        self.limit_stats()
+
+    def sleep(self):
+        print(f" Zzz... {self.name} солодко спить у коробці.")
+        self.energy += 30
+        self.satiety -= 10
+        self.limit_stats()
+
+    def limit_stats(self):
+        self.satiety = max(0, min(100, self.satiety))
+        self.energy = max(0, min(100, self.energy))
+        self.happiness = max(0, min(100, self.happiness))
+
+    def status(self):
+        print(f"\n--- Стан котика {self.name} ---")
+        print(f" Ситість: {self.satiety}/100")
+        print(f" Енергія: {self.energy}/100")
+        print(f" Щастя: {self.happiness}/100")
+        print("-----------------------------\n")
+
+my_cat = Cat("Боня")
+
+for day in range(1, 4):
+    print(f"=== day ===")
+    
+    action = random.choice(["eat", "play", "sleep"])
+    if action == "eat":
+        my_cat.eat()
+    elif action == "play":
+        my_cat.play()
+    elif action == "sleep":
+        my_cat.sleep()
+        
+    my_cat.status()
