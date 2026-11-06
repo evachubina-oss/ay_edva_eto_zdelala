@@ -1,0 +1,27 @@
+import random
+
+class Encryptor:
+    def __init__(self, number1, number2):
+        self._num1 = number1
+        self._num2 = number2
+
+    def _calculate(self):
+        operations = ["+", "-", "*"]
+        chosen_op = random.choice(operations)
+
+        if chosen_op == "+":
+            return self._num1 + self._num2
+        elif chosen_op == "-":
+            return self._num1 - self._num2
+        elif chosen_op == "*":
+            return self._num1 * self._num2
+
+    def __str__(self):
+        result = self._calculate()
+        return f"Результат секретного обчислення: {result}"
+
+
+if __name__ == "__main__":
+    secret_box = Encryptor(10, 5)
+
+    print(secret_box)
