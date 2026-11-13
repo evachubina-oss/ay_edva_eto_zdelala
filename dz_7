@@ -1,0 +1,15 @@
+class MyIterable:
+    def __init__(self, data):
+        self.data = data
+
+    def __iter__(self):
+        return (item for item in self.data)
+
+
+my_obj = MyIterable([1, 2, 3, 4, 5])
+
+it = iter(my_obj)
+print(type(it))
+
+for number in my_obj:
+    print(number)
