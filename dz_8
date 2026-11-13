@@ -1,0 +1,41 @@
+import random
+import logging
+
+logging.basicConfig(
+    level=logging.INFO,
+    filename="encryptor.log",
+    filemode="w",
+    encoding="utf-8",
+    format="%(asctime)s - %(levelname)s - %(message)s"
+)
+
+class Encryptor:
+    def __init__(self, number1, number2):
+        self._num1 = number1
+        self._num2 = number2
+
+    def _calculate(self):
+        operations = ["+", "-", "*"]
+        chosen_op = random.choice(operations)
+        logging.info(f"Випадкова операція: '{chosen_op}'")
+
+        if chosen_op == "+":
+            res = self._num1 + self._num2
+        elif chosen_op == "-":
+            res = self._num1 - self._num2
+        elif chosen_op == "*":
+            res = self._num1 * self._num2
+
+        logging.info(f"Обчислення готово. Результат: {res}")
+        return res
+
+    def __str__(self):
+        result = self._calculate()
+        return f"Результат секретного обчислення: {result}"
+
+
+if __name__ == "__main__":
+    logging.info("Запуск програми")
+    secret_box = Encryptor(10, 5)
+    print(secret_box)
+    logging.info("Завершення програми")
