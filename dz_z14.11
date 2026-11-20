@@ -1,0 +1,98 @@
+import random
+
+
+def create_pole(pole, size_y, size_x, empty_cell):
+    for i in range(size_y):
+        pole.append([])
+        for j in range(size_x):
+            pole[i].append(empty_cell)
+
+
+def show_pole(pole):
+    for row in pole:
+        for cell in row:
+            print(cell, end=" ")
+        print()
+
+
+def user(pole, size_y, size_x, empty_cell, user_cell):
+    while True:
+        posY = input("Y: ")
+        posX = input("X: ")
+        if posY.isdigit() and posX.isdigit():
+            posY = int(posY)
+            posX = int(posX)
+            if posY >= 1 and posY <= size_y and posX >= 1 and posX <= size_x:
+                if pole[posY - 1][posX - 1] == empty_cell:
+                    pole[posY - 1][posX - 1] = user_cell
+                    break
+
+
+def bot(pole, size_y, size_x, empty_cell, bot_cell):
+    while True:
+        pos_y = random.randint(0, size_y - 1)
+        pos_x = random.randint(0, size_x - 1)
+        if pole[pos_y][pos_x] == empty_cell:
+            pole[pos_y][pos_x] = bot_cell
+            break
+
+
+def win(pole, empty_cell):
+    for i in range(3):
+        if (
+            pole[i][0] == pole[i][1]
+            and pole[i][1] == pole[i][2]
+            and pole[i][0] != empty_cell
+        ):
+            return pole[i][0]
+        if (
+            pole[0][i] == pole[1][i]
+            and pole[1][i] == pole[2][i]
+            and pole[0][i] != empty_cell
+        ):
+            return pole[0][i]
+
+    if (
+        pole[0][0] == pole[1][1]
+        and pole[1][1] == pole[2][2]
+        and pole[0][0] != empty_cell
+    ):
+        return pole[0][0]
+    if (
+        pole[0][2] == pole[1][1]
+        and pole[1][1] == pole[2][0]
+        and pole[0][2] != empty_cell
+    ):
+        return pole[0][2]
+
+    for row in pole:
+        for cell in row:
+            if cell == empty_cell:
+                return ""
+    return "draw"
+
+
+size_y = 3
+size_x = 3
+pole = []
+empty_cell = "[_]"
+bot_cell = "[0]"
+user_cell = "[X]"
+
+create_pole(pole, size_y, size_x, empty_cell)
+
+while True:
+    show_pole(pole)
+    if win(pole, empty_cell) == user_cell:
+        print("User win")
+        break
+    if win(pole, empty_cell) == bot_cell:
+        print("Bot win")
+        break
+    if win(pole, empty_cell) == "draw":
+        print("Draw")
+        break
+
+    user(pole, size_y, size_x, empty_cell, user_cell)
+    if win(pole, empty_cell) == "":
+        bot(pole, size_y, size_x, empty_cell, bot_cell)
