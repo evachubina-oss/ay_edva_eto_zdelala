@@ -1,0 +1,142 @@
+import tkinter as tk
+from tkinter import messagebox
+import requests
+
+
+class Pokemon:
+    def __init__(self, name, poke_type, hp, attack, defense, speed):
+        self.name = name
+        self.poke_type = poke_type
+        self.hp = hp
+        self.attack = attack
+        self.defense = defense
+        self.speed = speed
+
+    def power(self):
+        return self.hp + self.attack + self.defense + self.speed
+
+    def __str__(self):
+        return (
+            f"Имя: {self.name}\n"
+            f"Тип: {self.poke_type}\n"
+            f"HP: {self.hp}, Атака: {self.attack}, Защита: {self.defense}, Скорость: {self.speed}\n"
+            f"Общая сила: {self.power()}"
+        )
+
+
+class PokeService:
+    URL = "https://" + "pokeapi.co/api/v2/pokemon/"
+
+    def get_pokemon(self, name):
+        if name == "":
+            raise ValueError("Ты ничего не ввел. О чём ты думал(а)?")
+
+        response = requests.get(self.URL + name, timeout=15)
+        if response.status_code == 404:
+            raise ValueError("Ты головой по клавиатуре бился? Пишешь с маленькой буквы и БЕЗ пробелов. Следи за этим...")
+        response.raise_for_status()
+
+        data = response.json()
+        first_type = data["types"].pop(0)
+        poke_type = first_type["type"]["name"]
+
+        stats = {}
+        for item in data["stats"]:
+            stats[item["stat"]["name"]] = item["base_stat"]
+
+        return Pokemon(
+            name=data["name"],
+            poke_type=poke_type,
+            hp=stats["hp"],
+            attack=stats["attack"],
+            defense=stats["defense"],
+            speed=stats["speed"],
+        )
+
+    def get_pokemon_list(self):
+        response = requests.get(self.URL + "?limit=20", timeout=15)
+        response.raise_for_status()
+        data = response.json()
+
+        names = []
+        for item in data["results"]:
+            names.append(item["name"])
+        return names
+
+
+service = PokeService()
+
+
+def show_info1():
+    try:
+        p = service.get_pokemon(entry1.get())
+        result_label.config(text=str(p))
+    except ValueError as e:
+        messagebox.showwarning("Внимание", str(e))
+    except requests.RequestException:
+        messagebox.showerror("Ошибка", "Нет подключения к интернету")
+
+
+def show_info2():
+    try:
+        p = service.get_pokemon(entry2.get())
+        result_label.config(text=str(p))
+    except ValueError as e:
+        messagebox.showwarning("Внимание", str(e))
+    except requests.RequestException:
+        messagebox.showerror("Ошибка", "Нет подключения к интернету")
+
+
+def fight():
+    try:
+        p1 = service.get_pokemon(entry1.get())
+        p2 = service.get_pokemon(entry2.get())
+        if p1.power() > p2.power():
+            winner = f"Победил {p1.name}! ({p1.power()} против {p2.power()})"
+        elif p2.power() > p1.power():
+            winner = f"Победил {p2.name}! ({p2.power()} против {p1.power()})"
+        else:
+            winner = "Ничья!"
+        result_label.config(text=f"{p1.name} vs {p2.name}\n\n{winner}")
+    except ValueError as e:
+        messagebox.showwarning("Внимание", str(e))
+    except requests.RequestException:
+        messagebox.showerror("Ошибка", "Нет подключения к интернету")
+
+
+def show_library():
+    try:
+        names = service.get_pokemon_list()
+        lib_win = tk.Toplevel(root)
+        lib_win.title("Библиотека покемонов")
+        lib_win.geometry("260x360")
+
+        tk.Label(lib_win, text="Можна копировать").pack(pady=5)
+        text_box = tk.Text(lib_win, width=25, height=18)
+        text_box.pack(pady=5)
+        text_box.insert("1.0", "\n".join(names))
+    except requests.RequestException:
+        messagebox.showerror("Ошибка", "Не удалось загрузить список с сайта")
+
+
+root = tk.Tk()
+root.title("Покедекс")
+root.geometry("380x470")
+
+tk.Label(root, text="Покемон 1:").pack(pady=5)
+entry1 = tk.Entry(root)
+entry1.pack()
+
+tk.Label(root, text="Покемон 2:").pack(pady=5)
+entry2 = tk.Entry(root)
+entry2.pack()
+
+tk.Button(root, text="Показать Покемона 1", command=show_info1).pack(pady=5)
+tk.Button(root, text="Показать Покемона 2", command=show_info2).pack(pady=5)
+tk.Button(root, text="Устроить бой", command=fight).pack(pady=5)
+tk.Button(root, text="Библиотека покемонов", command=show_library).pack(pady=5)
+
+result_label = tk.Label(root, text="", justify="left", font=("Arial", 10))
+result_label.pack(pady=15)
+
+root.mainloop()
