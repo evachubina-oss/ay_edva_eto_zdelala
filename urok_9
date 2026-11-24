@@ -1,0 +1,38 @@
+import requests
+
+
+class CurrencyConverter:
+    def __init__(self):
+        self.url = "https://bank.gov.ua"
+        self.usd_rate = self._get_usd_rate()
+
+    def _get_usd_rate(self):
+        try:
+            response = requests.get(self.url, timeout=10)
+            response.raise_for_status()
+            data = response.json()
+            return float(data[0]["rate"])
+        except Exception as e:
+            raise RuntimeError(f"Не вдалося отримати курс валют із сайту НБУ: {e}")
+
+    def uah_to_usd(self, uah_amount):
+        return uah_amount / self.usd_rate
+
+
+def main():
+    converter = CurrencyConverter()
+    print(f"Офіційний курс НБУ: 1 USD = {converter.usd_rate:.4f} UAH")
+
+    try:
+        uah = float(input("Введіть суму в гривнях (UAH): "))
+        if uah < 0:
+            print("Сума не може бути від'ємною.")
+            return
+        usd = converter.uah_to_usd(uah)
+        print(f"Сума в доларах США: {usd:.2f} USD")
+    except ValueError:
+        print("Помилка: введіть коректне число.")
+
+
+if __name__ == "__main__":
+    main()
